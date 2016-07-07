@@ -5,99 +5,101 @@ import java.util.Scanner;
  */
 public class Hangman {
 
-    private final String words;
-    private String guess_word;
+    private final String word;
     private int times;
+    private String guessed_chars_and_ture;
+    private String guessed_chars_but_false;
+    public static final String STATUS_1 = "you need to continue";
+    public static final String STATUS_2 = "you are successful";
+    public static final String STATUS_3 = "you have failed";
 
     public Hangman(String str) {
-        this.words = str;
+        this.word = str;
         this.times = str.length()+1;
-        this.guess_word = "aeiou";
+        this.guessed_chars_and_ture = "aeiou";
+        this.guessed_chars_but_false = "";
     }
 
-    public  int count() {
-        return words.length();
+    public  int word_length() {
+        return word.length();
     }
 
-    public  String showword() {
-
-        return words;
+    public  String show_word() {
+        return word;
     }
 
     public  String incompleter_word() {
         String str = "";
-        char[] ch = words.toCharArray();
-        for(int i = 0; i < words.length();i++)
-        {
-            if(guess_word.indexOf(ch[i]) ==-1 ) {
-                str += "_";
-            }
-            else
-                str += String.valueOf(ch[i]);
+        char[] ch = word.toCharArray();
+        int i = 0;
+        while (i < word.length()) {
+
+            str += isBoolean_not_in_guessed_chars(ch[i]) ? "_" : String.valueOf(ch[i]);
+            i++;
         }
         return str;
     }
 
+    private boolean isBoolean_not_in_guessed_chars(char ch) {
+        return (guessed_chars_and_ture.indexOf(ch) ==-1 && guessed_chars_but_false.indexOf(ch) ==-1);
+    }
+
+
     public  int Times() {
-         return times;
+        return times;
     }
 
-    public  String exist_word() {
+    public  String guessed_chars() {
 
-        return guess_word;
+        return guessed_chars_and_ture;
     }
 
-    public void guess(char gs) {
-        if(guess_word.indexOf(gs)==-1)
+    public void guess(char ch) {
+        if(isBoolean_not_in_guessed_chars(ch))
         {
-            if(words.indexOf(gs)!=-1)
-            { guess_word += String.valueOf(gs);
-                --times;
-            }
+            --times;
+            if(isaBoolean_in_word(ch))
+                guessed_chars_and_ture += String.valueOf(ch);
             else
-                --times;
+                guessed_chars_but_false += String.valueOf(ch);
         }
+        else
+            System.out.println("你已经猜过了！！！");
 
     }
 
-    public  String current_word() {
-       String word =  incompleter_word();
-        return word;
+    private boolean isaBoolean_in_word(char ch) {
+        return word.indexOf(ch)!=-1;
+    }
+
+    public  String show_current_word() {
+        return incompleter_word();
     }
 
     public  String Game_Status() {
-        String status_1 = "you need to continue";
-        String status_2 = "you are successful";
-        String status_3 = "you have failed";
-        if(times > 0)
-        {
-            if(words.equals(current_word()))
-                return status_2;
-            else
-                return status_1;
-        }
-        if(words.equals(current_word()))
-            return status_2;
-        else
-            return status_3;
+        boolean equals = isOK_guess();
+        return times > 0 ? equals ? STATUS_2 : STATUS_1 : equals ? STATUS_2 : STATUS_3;
 
     }
+
+    private boolean isOK_guess() {
+        return word.equals(show_current_word());
+    }
+
     public static void main(String[] args)
     {
         Hangman hangman = new Hangman("apple");
         Scanner sc = new Scanner(System.in);
-        while("you need to continue".equals(hangman.Game_Status()))
+        while(STATUS_1.equals(hangman.Game_Status()))
         {
-            System.out.println( hangman.current_word());
+            System.out.println( hangman.show_current_word());
             System.out.println("请猜单词："+"\n");
             hangman.guess(sc.next().charAt(0));
             System.out.println("你还有" + hangman.Times() +"次机会。\n");
-            System.out.println("目前单词组成状态：" + hangman.current_word());
+            System.out.println("目前单词组成状态：" + hangman.show_current_word());
             System.out.println( hangman.Game_Status());
 
         }
-
-
 
     }
 }
